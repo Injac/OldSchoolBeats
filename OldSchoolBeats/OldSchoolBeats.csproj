@@ -189,6 +189,7 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\OldSchoolArtistController.cs" />
+    <Compile Include="Controllers\OldSchoolFeedsController.cs" />
     <Compile Include="DataObjects\OldSchoolArtist.cs" />
     <Compile Include="Migrations\201406090049577_Initial.cs" />
     <Compile Include="Migrations\201406090049577_Initial.Designer.cs">
@@ -226,6 +227,9 @@
     <EmbeddedResource Include="Migrations\201406090049577_Initial.resx">
       <DependentUpon>201406090049577_Initial.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
