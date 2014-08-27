@@ -4,10 +4,12 @@ using System.Linq;
 using System.Web;
 using Microsoft.WindowsAzure.Mobile.Service;
 
-namespace OldSchoolBeats.DataObjects
-{
-    public class OldSchoolArtist:EntityData
-    {
+namespace OldSchoolBeats.DataObjects {
+    /// <summary>
+    /// Our DTO class
+    /// for Artists.
+    /// </summary>
+    public class OldSchoolArtist:EntityData {
 
         /// <summary>
         /// Gets or sets the artist.
@@ -15,7 +17,10 @@ namespace OldSchoolBeats.DataObjects
         /// <value>
         /// The artist.
         /// </value>
-        public string Artist { get; set; }
+        public string Artist {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Gets or sets the years archive.
@@ -23,7 +28,10 @@ namespace OldSchoolBeats.DataObjects
         /// <value>
         /// The years archive.
         /// </value>
-        public string YearsArchive { get; set; }
+        public string YearsArchive {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Gets or sets the related styles.
@@ -31,7 +39,10 @@ namespace OldSchoolBeats.DataObjects
         /// <value>
         /// The related styles.
         /// </value>
-        public string RelatedStyles { get; set; }
+        public string RelatedStyles {
+            get;
+            set;
+        }
 
     }
 }

@@ -1,0 +1,53 @@
+﻿<Page
+    x:Class="OldSchoolBeats.Universal.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:OldSchoolBeats.Universal"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:OldSchoolBeats.Universal.ViewModel"
+    DataContext="{Binding Source={StaticResource Locator},Path=Main}"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="331*"/>
+            <ColumnDefinition Width="352*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="76*"/>
+            <RowDefinition Height="609*"/>
+            <RowDefinition Height="83*"/>
+        </Grid.RowDefinitions>
+        <ListView x:Name="lstArtists" Grid.Row="1" ItemTemplate="{StaticResource ArtistListDataTemplate}" DataContext="{Binding DataService}" ItemsSource="{Binding Items}"/>
+        <TextBlock TextWrapping="Wrap" Text="Old School Artists " VerticalAlignment="Center" TextAlignment="Center" FontSize="48" FontFamily="Fonts/Grand Stylus.ttf#Grand Stylus" Grid.ColumnSpan="2" Canvas.ZIndex="-3"/>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="20,20,20,0">
+            <StackPanel.Background>
+                <ImageBrush Stretch="UniformToFill" ImageSource="Assets/compact-cassette-157537_1280.png" Opacity="0.05">
+                    <ImageBrush.RelativeTransform>
+                        <CompositeTransform CenterY="0.5" CenterX="0.5"/>
+                    </ImageBrush.RelativeTransform>
+                </ImageBrush>
+            </StackPanel.Background>
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,14" HorizontalAlignment="Center">
+                <Button AutomationProperties.AcceleratorKey="Control N">Add new Artist</Button>
+                <Button AutomationProperties.AcceleratorKey="Control D">Delete Artist</Button>
+                <Button AutomationProperties.AcceleratorKey="Control E">Edit Artist</Button>
+            </StackPanel>
+
+            <StackPanel Visibility="{Binding EditAreaVisible}">
+                <TextBlock Text="Artist Name" FontSize="14"/>
+                <TextBox x:Name="txtArtist" />
+                <TextBlock Text="Years Archive"  FontSize="14"/>
+                <TextBox x:Name="txtYearsArchive"/>
+                <TextBlock Text="Related Styles"  FontSize="14"/>
+                <TextBox x:Name="txtRelatedStyles"/>
+                <StackPanel Margin="0,14,0,0" Orientation="Horizontal">
+                    <Button AutomationProperties.AcceleratorKey="Control S">Save</Button>
+                    <Button AutomationProperties.AcceleratorKey="Control C">Cancel</Button>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+
+    </Grid>
+</Page>

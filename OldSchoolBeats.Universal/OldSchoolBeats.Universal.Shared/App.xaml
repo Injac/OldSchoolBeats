@@ -1,0 +1,28 @@
+﻿<Application
+    x:Class="OldSchoolBeats.Universal.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:OldSchoolBeats.Universal.ViewModel"
+    mc:Ignorable="d"
+    xmlns:local="using:OldSchoolBeats.Universal">
+    <Application.Resources>
+        <vm:ViewModelLocator x:Key="Locator"
+                             d:IsDataSource="True" />
+
+        <DataTemplate x:Key="ArtistListDataTemplate">
+            <Grid>
+                <StackPanel Orientation="Horizontal" Margin="14,0,0,0">
+                    <Image Width="75" Height="75" Source="{Binding ImageUrl}" VerticalAlignment="Top" Margin="0,0,0,14" Stretch="Fill"/>
+                    <StackPanel Margin="14,0,0,14" VerticalAlignment="Top">
+                        <TextBlock Text="{Binding Artist}" FontSize="18.667" FontWeight="Bold" Foreground="#FF507DDC"/>
+                        <TextBlock Text="{Binding YearsArchive}" Foreground="#FFC2EA3C"/>
+                        <TextBlock Text="{Binding RelatedStyles}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </Application.Resources>
+
+</Application>
