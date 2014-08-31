@@ -48,28 +48,31 @@ namespace OldSchoolBeats {
                 new MediaTypeHeaderValue("application/x-www-form-urlencoded"),
                 typeof(OldSchoolArtist));
 
+            //YOU CAN USE THE RESOURCE BROKER AFTER THE ASSEMBLIES FOR
+            //THE MANAGED BACKEND USE THE LATEST WEB-API ASSEMBLIES
+
             //This is directly taken from the documenation about resource
             //Controllers on GitHub (created by the Azure Mobile Services Team)
             //https://github.com/Azure/azure-mobile-services-resourcebroker
             // Create a custom route mapping the resource type into the URI.
-            var resourcesRoute = config.Routes.CreateRoute(
-                                     routeTemplate: "api/resources/{type}",
-                                     defaults: new { controller = "resources" },
-                                     constraints: null);
+            //var resourcesRoute = config.Routes.CreateRoute(
+            //                         routeTemplate: "api/resources/{type}",
+            //                         defaults: new { controller = "resources" },
+            //                         constraints: null);
 
             // Insert the ResourcesController route at the top of the collection to avoid conflicting with predefined routes.
-            config.Routes.Insert(0, "Resources", resourcesRoute);
+            //config.Routes.Insert(0, "Resources", resourcesRoute);
 
 
             // To display errors in the browser during development, uncomment the following
             // line. Comment it out again when you deploy your service for production use.
             // config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
 
-            //Database.SetInitializer(new OldSchoolBeatsInitializer());
+            Database.SetInitializer(new OldSchoolBeatsInitializer());
 
             //trigger migrations manually
-            var migrator = new DbMigrator(new Configuration());
-            migrator.Update();
+            //var migrator = new DbMigrator(new Configuration());
+            //migrator.Update();
         }
     }
 

@@ -71,7 +71,8 @@ namespace OldSchoolBeats.Controllers {
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpPost]
+        [Route("api/getallblobs")]
         public async Task<IEnumerable<CloudBlockBlob>> GetAllBlobsInContainer(BlobManipulationData data) {
 
             await InitBlobContainer(data);
@@ -88,6 +89,8 @@ namespace OldSchoolBeats.Controllers {
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
+        [HttpPost]
+        [Route("api/pageblobs")]
         public async Task<IEnumerable<CloudBlockBlob>> PageBlobsInContainer(BlobManipulationData data) {
 
             await InitBlobContainer(data);
@@ -102,9 +105,11 @@ namespace OldSchoolBeats.Controllers {
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
+        [HttpPost]
+        [Route("api/getblobcount")]
         public async Task<int> GetBlobCount(BlobManipulationData data) {
 
-            return await Task.Run<int>( async ()=> {
+            return await Task.Run<int>(async () => {
 
                 await InitBlobContainer(data);
 
@@ -121,13 +126,15 @@ namespace OldSchoolBeats.Controllers {
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
+        [HttpPost]
+        [Route("api/uploadblob")]
         public async Task UploadBlob(BlobManipulationData data) {
 
             await InitBlobContainer(data);
 
             var blob = container.GetBlockBlobReference(data.BlobName);
 
-            await blob.UploadFromByteArrayAsync(data.BlobData,0,data.BlobData.Length);
+            await blob.UploadFromByteArrayAsync(data.BlobData, 0, data.BlobData.Length);
 
 
         }
@@ -137,6 +144,8 @@ namespace OldSchoolBeats.Controllers {
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
+        [HttpPost]
+        [Route("api/deleteblob")]
         public async Task DeleteBlob(BlobManipulationData data) {
 
             await InitBlobContainer(data);
@@ -153,6 +162,8 @@ namespace OldSchoolBeats.Controllers {
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
+        [HttpPost]
+        [Route("api/renameblob")]
         public async Task RenameBlob(BlobManipulationData data) {
 
             await InitBlobContainer(data);
@@ -162,7 +173,7 @@ namespace OldSchoolBeats.Controllers {
             var exists = await blob.ExistsAsync();
 
 
-            if(exists) {
+            if (exists) {
 
                 var renameTo = container.GetBlockBlobReference(data.NewBlobName);
 
@@ -199,6 +210,8 @@ namespace OldSchoolBeats.Controllers {
         /// </summary>
         /// <param name="sasUrl">The sas URL.</param>
         /// <returns></returns>
+        [HttpPost]
+        [Route("api/dowloadblobsas")]
         public async Task<byte[]> DownloadBlobUsingSASResourceUrl(string sasUrl) {
 
             HttpClient cl = new HttpClient();
