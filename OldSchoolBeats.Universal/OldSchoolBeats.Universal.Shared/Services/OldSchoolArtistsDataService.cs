@@ -15,6 +15,16 @@ namespace OldSchoolBeats.Universal.Services {
             set;
         }
 
+        public OldSchoolArtist SelectedItem {
+            get;
+            set;
+        }
+
+        public object DataContext {
+            get;
+            set;
+        }
+
         public OldSchoolArtistsDataService(MobileServiceClient client) {
             this._client = client;
         }
@@ -50,6 +60,17 @@ namespace OldSchoolBeats.Universal.Services {
 
             var query = _client.GetTable<OldSchoolArtist>().Take(10);
             this.Items = new MobileServiceCollection<OldSchoolArtist>(query);
+        }
+
+
+
+
+
+        public ICollection<OldSchoolArtist> SearchAndReturnItems(System.Linq.Expressions.Expression<Func<OldSchoolArtist, bool>> predicate) {
+            var query = _client.GetTable<OldSchoolArtist>().Where(predicate);
+            var items =  new MobileServiceCollection<OldSchoolArtist>(query);
+
+            return items;
         }
     }
 }

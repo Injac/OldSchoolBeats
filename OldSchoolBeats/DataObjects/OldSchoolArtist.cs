@@ -44,5 +44,16 @@ namespace OldSchoolBeats.DataObjects {
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the image URL.
+        /// </summary>
+        /// <value>
+        /// The image URL.
+        /// </value>
+        public string ImageUrl {
+            get;
+            set;
+        }
+
     }
 }

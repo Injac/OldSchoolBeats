@@ -8,6 +8,51 @@
     xmlns:vm="using:OldSchoolBeats.Universal.ViewModel"
     DataContext="{Binding Source={StaticResource Locator},Path=Main}"
     mc:Ignorable="d">
+    <Page.TopAppBar>
+        <AppBar>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="260"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Grid Height="115" Width="250">
+                        <Image Source="Assets/Tile.png"/>
+                        <TextBlock Text="HOME" FontSize="24" HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                        <Image Source="Assets/appbar.home.empty.png" Width="80" Height="80" Margin="0,7,0,0"/>
+                    </Grid>
+                </StackPanel>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Grid Height="115" Width="250">
+                        <Image Source="Assets/Tile.png"/>
+                        <TextBlock Text="SIGNALR" FontSize="24" HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                        <Image Source="Assets/appbar.lightning.png" Width="80" Height="80" Margin="0,11,0,0"/>
+                    </Grid>
+                </StackPanel>
+                <StackPanel Grid.Column="2" HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Grid Height="115" Width="250">
+                        <Image Source="Assets/Tile.png"/>
+                        <TextBlock Text="STORAGE" FontSize="24" HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                        <Image Source="Assets/appbar.cloud.png" Width="80" Height="80" Margin="0,7,0,0"/>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </AppBar>
+    </Page.TopAppBar>
+    <Page.BottomAppBar>
+        <AppBar>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"/>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal"/>
+            </Grid>
+        </AppBar>
+    </Page.BottomAppBar>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.ColumnDefinitions>
@@ -19,7 +64,8 @@
             <RowDefinition Height="609*"/>
             <RowDefinition Height="83*"/>
         </Grid.RowDefinitions>
-        <ListView x:Name="lstArtists" Grid.Row="1" ItemTemplate="{StaticResource ArtistListDataTemplate}" DataContext="{Binding DataService}" ItemsSource="{Binding Items}"/>
+        <ListView x:Name="lstArtists" Grid.Row="1" ItemTemplate="{StaticResource ArtistListDataTemplate}"
+         DataContext="{Binding DataService}" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}"/>
         <TextBlock TextWrapping="Wrap" Text="Old School Artists " VerticalAlignment="Center" TextAlignment="Center" FontSize="48" FontFamily="Fonts/Grand Stylus.ttf#Grand Stylus" Grid.ColumnSpan="2" Canvas.ZIndex="-3"/>
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="20,20,20,0">
             <StackPanel.Background>
@@ -29,22 +75,41 @@
                     </ImageBrush.RelativeTransform>
                 </ImageBrush>
             </StackPanel.Background>
-            <StackPanel Orientation="Horizontal" Margin="0,14,0,14" HorizontalAlignment="Center">
-                <Button AutomationProperties.AcceleratorKey="Control N">Add new Artist</Button>
-                <Button AutomationProperties.AcceleratorKey="Control D">Delete Artist</Button>
-                <Button AutomationProperties.AcceleratorKey="Control E">Edit Artist</Button>
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,14" HorizontalAlignment="Center" DataContext="{Binding}">
+                <Button AutomationProperties.AcceleratorKey="Control N"
+                 DataContext="{Binding NewArtist}" x:Name="cmdAddArtist" 
+                 Command="{Binding AddNewArtistCommand}" 
+                 CommandParameter="{Binding ElementName=cmdAddArtist,Path=DataContext}" >Add new Artist</Button>
+
+                <Button AutomationProperties.AcceleratorKey="Control D" x:Name="cmdDeleteArtist"
+                DataContext="{Binding DataService.SelectedItem}" Command="{Binding DeleteArtistCommand}" 
+                CommandParameter="{Binding ElementName=cmdDeleteArtist,Path=DataContext}">Delete Artist</Button>
+                
+                <Button AutomationProperties.AcceleratorKey="Control E" x:Name="cmdEditArtist"
+                 Command="{Binding EditArtistCommand}" CommandParameter="{Binding ElementName=cmdEditArtist,Path=Tag}"
+                 DataContext="{Binding}" Tag="{Binding SelectedItem}">Edit Artist</Button>
             </StackPanel>
 
             <StackPanel Visibility="{Binding EditAreaVisible}">
-                <TextBlock Text="Artist Name" FontSize="14"/>
-                <TextBox x:Name="txtArtist" />
-                <TextBlock Text="Years Archive"  FontSize="14"/>
-                <TextBox x:Name="txtYearsArchive"/>
-                <TextBlock Text="Related Styles"  FontSize="14"/>
-                <TextBox x:Name="txtRelatedStyles"/>
-                <StackPanel Margin="0,14,0,0" Orientation="Horizontal">
-                    <Button AutomationProperties.AcceleratorKey="Control S">Save</Button>
-                    <Button AutomationProperties.AcceleratorKey="Control C">Cancel</Button>
+                <StackPanel DataContext="{Binding DataService.SelectedItem}">
+                    <TextBlock Text="Artist Name" FontSize="14"/>
+                    <TextBox x:Name="txtArtist" Text="{Binding Artist,Mode=TwoWay}" />
+                    <TextBlock Text="Years Archive"  FontSize="14"/>
+                    <TextBox x:Name="txtYearsArchive" Text="{Binding YearsArchive,Mode=TwoWay}"/>
+                    <TextBlock Text="Related Styles"  FontSize="14"/>
+                    <TextBox x:Name="txtRelatedStyles" Text="{Binding RelatedStyles,Mode=TwoWay}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,14,0,14">
+                        <TextBox Width="300" Margin="0,0,14,0"/>
+                        <Button Content="Lookup Artist Image on LastFM"/>
+                    </StackPanel>
+                    <TextBlock Text="Artist Image" Margin="0,0,0,14"/>
+                    <Image Width="150" Height="150" Stretch="UniformToFill" Margin="0,0,0,14" HorizontalAlignment="Left" 
+                Source="{Binding RelatedStyles}"/>
+
+                    <StackPanel Margin="0,14,0,0" Orientation="Horizontal" DataContext="{Binding Source={StaticResource Locator},Path=Main}">
+                        <Button AutomationProperties.AcceleratorKey="Control S" Command="{Binding CrudActionCommand}">Save</Button>
+                        <Button AutomationProperties.AcceleratorKey="Control C" Command="{Binding CancelCommand}">Cancel</Button>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

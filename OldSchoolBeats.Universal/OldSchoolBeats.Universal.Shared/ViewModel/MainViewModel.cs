@@ -27,13 +27,12 @@ namespace OldSchoolBeats.Universal.ViewModel {
             set;
         }
 
-        /// <summary>
-        /// The <see cref="SelectedItem" /> property's name.
-        /// </summary>
-        public const string SelectedItemPropertyName = "SelectedItem";
 
-        private OldSchoolArtist _selectedItem;
-
+        public OldSchoolArtist NewArtist {
+            get {
+                return new OldSchoolArtist();
+            }
+        }
 
         /// <summary>
         /// The <see cref="EditAreaVisible" /> property's name.
@@ -61,25 +60,101 @@ namespace OldSchoolBeats.Universal.ViewModel {
             }
         }
 
-        /// <summary>
-        /// Sets and gets the SelectedItem property.
-        /// Changes to that property's value raise the PropertyChanged event.
-        /// </summary>
-        public OldSchoolArtist SelectedItem {
+
+
+        private RelayCommand<OldSchoolArtist> addNewArtistCommand;
+
+        public RelayCommand<OldSchoolArtist> AddNewArtistCommand {
+
             get {
-                return _selectedItem;
+                return this.addNewArtistCommand;
             }
 
             set {
-                if (_selectedItem == value) {
-                    return;
-                }
-
-                _selectedItem = value;
-                RaisePropertyChanged(SelectedItemPropertyName);
+                this.addNewArtistCommand = value;
             }
+
         }
 
+        private RelayCommand<OldSchoolArtist> deleteArtistCommand;
+
+        public RelayCommand<OldSchoolArtist> DeleteArtistCommand {
+
+            get {
+                return this.deleteArtistCommand;
+            }
+
+            set {
+                this.deleteArtistCommand = value;
+            }
+
+        }
+
+
+        private RelayCommand<OldSchoolArtist> editArtistCommand;
+
+        public RelayCommand<OldSchoolArtist> EditArtistCommand {
+
+            get {
+                return this.editArtistCommand;
+            }
+
+            set {
+                this.editArtistCommand = value;
+            }
+
+        }
+
+        private RelayCommand<string> lookupArtistImageCommand;
+
+        public RelayCommand<string> LookupArtistImageCommand {
+
+            get {
+                return this.lookupArtistImageCommand;
+            }
+
+            set {
+                this.lookupArtistImageCommand = value;
+            }
+
+        }
+
+
+
+        private RelayCommand crudActionCommand;
+
+        public RelayCommand CrudActionCommand {
+
+            get {
+                return this.crudActionCommand;
+            }
+
+            set {
+                this.crudActionCommand = value;
+            }
+
+        }
+
+
+        private RelayCommand cancelCommand;
+
+        public RelayCommand CancelCommand {
+
+            get {
+                return this.cancelCommand;
+            }
+
+            set {
+                this.cancelCommand = value;
+            }
+
+        }
+
+
+        private OldSchoolArtist currentArtist {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -103,11 +178,57 @@ namespace OldSchoolBeats.Universal.ViewModel {
 
         private void InitRuntimeMode() {
             this.EditAreaVisible = Visibility.Collapsed;
+
             this.DataService = SimpleIoc.Default.GetInstance<IDataService<OldSchoolArtist>>();
+
+            this.AddNewArtistCommand = new RelayCommand<OldSchoolArtist>(AddNewArtist);
+            this.DeleteArtistCommand = new RelayCommand<OldSchoolArtist>(DeleteArtist);
+            this.EditArtistCommand = new RelayCommand<OldSchoolArtist>(EditArtist);
+            this.LookupArtistImageCommand = new RelayCommand<string>(LookupArtist);
+            this.CrudActionCommand = new RelayCommand(ExecuteUpdate);
+            this.CancelCommand = new RelayCommand(Cancel);
+        }
+
+        private void Cancel() {
+
+            this.DataService.SelectedItem = null;
+            this.EditAreaVisible = Visibility.Collapsed;
+        }
+
+        private void ExecuteUpdate() {
+
+            var dataService = (OldSchoolArtistsDataService)this.DataService;
+            DataService.UpdateItem(dataService.DataContext as OldSchoolArtist,this.DataService.SelectedItem);
+
+        }
+
+        private  void LookupArtist(string artistName) {
+
+            //Items are directly filled and bound
+            DataService.SearchItems(a=>a.Artist.Equals(artistName));
+
+        }
+
+        private void EditArtist(OldSchoolArtist artist) {
+
+            var dataService = (OldSchoolArtistsDataService) this.DataService;
+            dataService.DataContext = artist;
+
+        }
+
+        private async void DeleteArtist(OldSchoolArtist artist) {
+
+            await this.DataService.DeleteItem(artist);
+        }
+
+        private async void AddNewArtist(OldSchoolArtist artist) {
+
+            await this.DataService.AddItem(artist);
         }
 
         private void InitDesignMode() {
-            this.EditAreaVisible = Visibility.Collapsed;
+
+            this.EditAreaVisible = Visibility.Visible;
             this.DataService = SimpleIoc.Default.GetInstance<DesignTimeDataService>();
         }
 

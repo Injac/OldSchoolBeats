@@ -16,6 +16,17 @@ namespace OldSchoolBeats.Universal.Services {
             set;
         }
 
+
+        public OldSchoolArtist SelectedItem {
+            get;
+            set;
+        }
+
+        public object DataContext {
+            get;
+            set;
+        }
+
         private ObservableCollection<OldSchoolArtist> _sampleData;
 
         public DesignTimeDataService() {
@@ -107,6 +118,11 @@ namespace OldSchoolBeats.Universal.Services {
 
                 this.Items = (ICollection<OldSchoolArtist>)this._sampleData;
             });
+        }
+
+
+        public ICollection<OldSchoolArtist> SearchAndReturnItems(Expression<Func<OldSchoolArtist, bool>> predicate) {
+            throw new NotImplementedException();
         }
     }
 }

@@ -58,6 +58,9 @@
     <Reference Include="EntityFramework.SqlServer">
       <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="lastfm-sharp">
+      <HintPath>D:\Download\lastfm-sharp-0.1.10-bin\lastfm-sharp-0.1.10-bin\lastfm-sharp.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core">
       <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.0.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
     </Reference>
@@ -219,6 +222,7 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\BlobResourceHelperController.cs" />
+    <Compile Include="Controllers\LastFmController.cs" />
     <Compile Include="Controllers\OldSchoolArtistController.cs" />
     <Compile Include="Controllers\OldSchoolFeedsController.cs" />
     <Compile Include="Controllers\ResourcesController.cs" />
