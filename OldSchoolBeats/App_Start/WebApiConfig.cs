@@ -5,7 +5,7 @@ using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.Web.Http;
 using OldSchoolBeats.DataObjects;
-using OldSchoolBeats.Migrations;
+//using OldSchoolBeats.Migrations;
 using OldSchoolBeats.Models;
 using Microsoft.WindowsAzure.Mobile.Service;
 using System.Net.Http.Headers;
@@ -34,6 +34,7 @@ namespace OldSchoolBeats {
 
             ConfigBuilder builder = new ConfigBuilder(options, (httpConfig, autofac) => {
                 autofac.RegisterInstance(new TableLoggingService()).As<ILoggingService>();
+
             });
 
 

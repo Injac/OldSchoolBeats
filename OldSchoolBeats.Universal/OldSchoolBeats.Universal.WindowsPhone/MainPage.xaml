@@ -5,24 +5,47 @@
     xmlns:local="using:OldSchoolBeats.Universal"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:behaviours="using:OldSchoolBeats.Universal.Behaviours"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" DataContext="{Binding Main.DataService, Source={StaticResource Locator}}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    DataContext="{Binding Main, Source={StaticResource Locator}}">
+
+    <interactivity:Interaction.Behaviors>
+        <behaviours:DialogBehavior TitleText="Login Message" MessageText="You need to login using your\n Microsoft Account." Identifier="8DD83D08-477E-4034-BC1D-F702F09A6CD1"/>
+        <behaviours:DialogBehavior TitleText="Login Message" MessageText="You have been successfully logged in." Identifier="8F3C48B9-C4D0-4B62-B1A1-A05738BF4CE9"/>
+        <behaviours:DialogBehavior 
+            TitleText="Delete" YesText="Yes" NoText="No"  
+            MessageText="Do you really want to delete this artist?" 
+            Identifier="063719A2-20F0-4150-A3B1-20E051C5B34D"
+            
+            />
+    </interactivity:Interaction.Behaviors>
     <Page.BottomAppBar>
         <CommandBar>
             <CommandBar.Background>
                 <SolidColorBrush Color="#FF1F1F1F" Opacity="0.1"/>
             </CommandBar.Background>
-            <AppBarButton Icon="Add" Label="add"/>
-            <AppBarButton Icon="Edit" Label="edit"/>
-            <AppBarButton Icon="Delete" Label="delete"/>
-            <AppBarButton Icon="Cancel" Label="cancel"/>
+            <AppBarButton Icon="Add" Label="add" Command="{Binding Navigate}" CommandParameter="AddArtist"/>
+            <AppBarButton Icon="Edit" Label="edit" Command="{Binding EditArtistCommand}" />
+            <AppBarButton Icon="Delete" Label="delete" Command="{Binding DeleteArtistCommand}" CommandParameter="{Binding DataService.SelectedItem}" />
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Label="SignalR" Command="{Binding Navigate}" CommandParameter="Signalr"/>
+            </CommandBar.SecondaryCommands>
         </CommandBar>
+        
     </Page.BottomAppBar>
 
-    <Grid DataContext="{Binding Source={StaticResource Locator}}">
-        <StackPanel>
-            <TextBlock FontSize="22" FontFamily="Fonts/Grand Stylus.ttf#Grand Stylus" TextAlignment="Center">OldSchool Artists</TextBlock>
-            <ListView x:Name="lstArtists" ItemTemplate="{StaticResource ArtistListDataTemplate}" DataContext="{Binding Main.DataService}" ItemsSource="{Binding Items}"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="27*"/>
+            <RowDefinition Height="263*"/>
+        </Grid.RowDefinitions>
+        <ListView SelectionMode="Single" SelectedItem="{Binding DataService.SelectedItem,Mode=TwoWay}" x:Name="lstArtists" ItemTemplate="{StaticResource ArtistListDataTemplate}"  ItemsSource="{Binding DataService.Items}" Margin="0,0,-3.0517578125E-05,-0.166671752929688" Grid.Row="1"/>
+        <StackPanel Grid.RowSpan="2">
+            <TextBlock FontSize="22" FontFamily="Fonts/Grand Stylus.ttf#Grand Stylus" TextAlignment="Center">
+            	<Run Text="OldSchool Artists"/>
+            </TextBlock>
         </StackPanel>
 
     </Grid>

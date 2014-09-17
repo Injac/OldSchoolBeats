@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Microsoft.AspNet.SignalR.Client;
+using Microsoft.WindowsAzure.MobileServices;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
@@ -15,28 +17,70 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using System.Threading.Tasks;
+using GalaSoft.MvvmLight.Threading;
+using OldSchoolBeats.Universal.ViewModel;
 
 // The Blank Application template is documented at http://go.microsoft.com/fwlink/?LinkId=234227
 
-namespace OldSchoolBeats.Universal
-{
+namespace OldSchoolBeats.Universal {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
-    public sealed partial class App : Application
-    {
-#if WINDOWS_PHONE_APP
+    public sealed partial class App : Application {
+
+        public static HubConnection HubConnection {
+            get;
+            set;
+        }
+
+        public static IHubProxy HubProxy {
+            get;
+            set;
+        }
+
+        public static MobileServiceUser User {
+            get;
+            set;
+        }
+
+        //public static MobileServiceClient MobileService = new MobileServiceClient(
+        //    "http://localhost:9215"
+        //);
+
+        public static MobileServiceClient MobileService = new MobileServiceClient(
+            "[YOUR MOBILE SERVICES-URL HERE]",
+            "[YOUR MOBILE SERVICES KEY HERE]"
+        );
+
+
+        #if WINDOWS_PHONE_APP
         private TransitionCollection transitions;
-#endif
+        #endif
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
-        public App()
-        {
+        public App() {
             this.InitializeComponent();
             this.Suspending += this.OnSuspending;
+
+        }
+
+
+        protected override void OnActivated(IActivatedEventArgs args) {
+            base.OnActivated(args);
+
+            #if WINDOWS_PHONE_APP
+
+            if (args.Kind == ActivationKind.WebAuthenticationBrokerContinuation) {
+                App.MobileService.LoginComplete(args as WebAuthenticationBrokerContinuationEventArgs);
+            }
+
+            #endif
+
+
         }
 
         /// <summary>
@@ -45,29 +89,27 @@ namespace OldSchoolBeats.Universal
         /// search results, and so forth.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
-        {
-#if DEBUG
-            if (System.Diagnostics.Debugger.IsAttached)
-            {
+        protected override void OnLaunched(LaunchActivatedEventArgs e) {
+            #if DEBUG
+
+            if (System.Diagnostics.Debugger.IsAttached) {
                 this.DebugSettings.EnableFrameRateCounter = true;
             }
-#endif
+
+            #endif
 
             Frame rootFrame = Window.Current.Content as Frame;
 
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
-            if (rootFrame == null)
-            {
+            if (rootFrame == null) {
                 // Create a Frame to act as the navigation context and navigate to the first page
                 rootFrame = new Frame();
 
                 // TODO: change this value to a cache size that is appropriate for your application
                 rootFrame.CacheSize = 1;
 
-                if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
-                {
+                if (e.PreviousExecutionState == ApplicationExecutionState.Terminated) {
                     // TODO: Load state from previously suspended application
                 }
 
@@ -75,49 +117,54 @@ namespace OldSchoolBeats.Universal
                 Window.Current.Content = rootFrame;
             }
 
-            if (rootFrame.Content == null)
-            {
-#if WINDOWS_PHONE_APP
+            if (rootFrame.Content == null) {
+                #if WINDOWS_PHONE_APP
+
                 // Removes the turnstile navigation for startup.
-                if (rootFrame.ContentTransitions != null)
-                {
+                if (rootFrame.ContentTransitions != null) {
                     this.transitions = new TransitionCollection();
-                    foreach (var c in rootFrame.ContentTransitions)
-                    {
+
+                    foreach (var c in rootFrame.ContentTransitions) {
                         this.transitions.Add(c);
                     }
                 }
 
                 rootFrame.ContentTransitions = null;
                 rootFrame.Navigated += this.RootFrame_FirstNavigated;
-#endif
+                #endif
 
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter
-                if (!rootFrame.Navigate(typeof(MainPage), e.Arguments))
-                {
+                if (!rootFrame.Navigate(typeof(MainPage), e.Arguments)) {
                     throw new Exception("Failed to create initial page");
                 }
             }
 
             // Ensure the current window is active
             Window.Current.Activate();
+
+            DispatcherHelper.Initialize();
+
+            var locator = (ViewModelLocator) App.Current.Resources["Locator"];
+
+            locator.Main.LoginCommand.Execute(null);
         }
 
-#if WINDOWS_PHONE_APP
+        #if WINDOWS_PHONE_APP
         /// <summary>
         /// Restores the content transitions after the app has launched.
         /// </summary>
         /// <param name="sender">The object where the handler is attached.</param>
         /// <param name="e">Details about the navigation event.</param>
-        private void RootFrame_FirstNavigated(object sender, NavigationEventArgs e)
-        {
+        private void RootFrame_FirstNavigated(object sender, NavigationEventArgs e) {
             var rootFrame = sender as Frame;
-            rootFrame.ContentTransitions = this.transitions ?? new TransitionCollection() { new NavigationThemeTransition() };
+            rootFrame.ContentTransitions = this.transitions ?? new TransitionCollection() {
+                new NavigationThemeTransition()
+            };
             rootFrame.Navigated -= this.RootFrame_FirstNavigated;
         }
-#endif
+        #endif
 
         /// <summary>
         /// Invoked when application execution is being suspended.  Application state is saved
@@ -126,12 +173,13 @@ namespace OldSchoolBeats.Universal
         /// </summary>
         /// <param name="sender">The source of the suspend request.</param>
         /// <param name="e">Details about the suspend request.</param>
-        private void OnSuspending(object sender, SuspendingEventArgs e)
-        {
+        private void OnSuspending(object sender, SuspendingEventArgs e) {
             var deferral = e.SuspendingOperation.GetDeferral();
 
             // TODO: Save application state and stop any background activity
             deferral.Complete();
         }
+
+
     }
 }

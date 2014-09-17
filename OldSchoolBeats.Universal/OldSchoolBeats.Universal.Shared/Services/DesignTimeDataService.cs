@@ -6,12 +6,14 @@ using OldSchoolBeats.ClientModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.WindowsAzure.MobileServices;
+using OldSchoolBeats.Universal.ViewModel;
 
 namespace OldSchoolBeats.Universal.Services {
     public class DesignTimeDataService:IDataService<OldSchoolArtist> {
 
 
-        public ICollection<OldSchoolArtist> Items {
+        public MobileServiceCollection<OldSchoolArtist,OldSchoolArtist> Items {
             get;
             set;
         }
@@ -22,12 +24,16 @@ namespace OldSchoolBeats.Universal.Services {
             set;
         }
 
-        public object DataContext {
+        public BindableOldSchoolArtist DataContext {
             get;
             set;
         }
 
         private ObservableCollection<OldSchoolArtist> _sampleData;
+
+        public Task FillItems() {
+            throw new NotImplementedException();
+        }
 
         public DesignTimeDataService() {
 
@@ -83,41 +89,32 @@ namespace OldSchoolBeats.Universal.Services {
                 ImageUrl = "http://lorempixel.com/g/150/150/"
             });
 
-            this.Items = _sampleData;
+            foreach(var i in _sampleData) {
+                this.Items.Add(i);
+            }
         }
 
         public void SearchItems(Expression<Func<OldSchoolArtist, bool>> predicate) {
 
-            this.Items = (ICollection<OldSchoolArtist>) this._sampleData.Where(predicate.Compile());
+            var items =  (ICollection<OldSchoolArtist>) this._sampleData.Where(predicate.Compile());
+
+            foreach(var i in items) {
+                this.Items.Add(i);
+            }
         }
 
         public Task DeleteItem(OldSchoolArtist item) {
 
-            return Task.Run(()=> {
-                this._sampleData.Remove(item);
-                this.Items = (ICollection<OldSchoolArtist>) this._sampleData;
-            });
+            throw new NotImplementedException();
         }
 
         public Task AddItem(OldSchoolArtist item) {
-            return Task.Run(() => {
-                this._sampleData.Add(item);
-                this.Items = (ICollection<OldSchoolArtist>)this._sampleData;
-            });
+            throw new NotImplementedException();
         }
 
-        public  Task UpdateItem(OldSchoolArtist item, OldSchoolArtist delta) {
+        public  Task UpdateItem(BindableOldSchoolArtist item, OldSchoolArtist delta) {
 
-            return Task.Run(() => {
-                item.Artist = delta.Artist;
-                item.RelatedStyles = delta.RelatedStyles;
-                item.YearsArchive = delta.YearsArchive;
-
-                var index = this._sampleData.IndexOf(item);
-                this._sampleData[index] = item;
-
-                this.Items = (ICollection<OldSchoolArtist>)this._sampleData;
-            });
+            throw new NotImplementedException();
         }
 
 

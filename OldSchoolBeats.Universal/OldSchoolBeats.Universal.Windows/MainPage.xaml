@@ -6,8 +6,23 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:OldSchoolBeats.Universal.ViewModel"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:behaviours="using:OldSchoolBeats.Universal.Behaviours"
     DataContext="{Binding Source={StaticResource Locator},Path=Main}"
     mc:Ignorable="d">
+    <interactivity:Interaction.Behaviors>
+
+        <behaviours:DialogBehavior TitleText="Login Message" MessageText="You need to login using your\n Microsoft Account." Identifier="8DD83D08-477E-4034-BC1D-F702F09A6CD1"/>
+        <behaviours:DialogBehavior TitleText="Login Message" MessageText="You have been successfully logged in." Identifier="8F3C48B9-C4D0-4B62-B1A1-A05738BF4CE9"/>
+
+        <behaviours:DialogBehavior 
+            TitleText="Delete" YesText="Yes" NoText="No"  
+            MessageText="Do you really want to delete this artist?" 
+            Identifier="063719A2-20F0-4150-A3B1-20E051C5B34D"
+            
+            />
+        
+    </interactivity:Interaction.Behaviors>
     <Page.TopAppBar>
         <AppBar>
             <Grid>
@@ -18,26 +33,33 @@
                     <ColumnDefinition Width="260"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Grid Height="115" Width="250">
-                        <Image Source="Assets/Tile.png"/>
-                        <TextBlock Text="HOME" FontSize="24" HorizontalAlignment="Center" Margin="0,14,0,0"/>
-                        <Image Source="Assets/appbar.home.empty.png" Width="80" Height="80" Margin="0,7,0,0"/>
-                    </Grid>
+                    <Button BorderBrush="{x:Null}" Command="{Binding Navigate}" CommandParameter="MainPage">
+                        <Grid Height="115" Width="250">
+                            <Image Source="Assets/Tile.png"/>
+                            <TextBlock Text="HOME" FontSize="24" HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                            <Image Source="Assets/appbar.home.empty.png" Width="80" Height="80" Margin="0,7,0,0"/>
+                        </Grid>
+                    </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Grid Height="115" Width="250">
-                        <Image Source="Assets/Tile.png"/>
-                        <TextBlock Text="SIGNALR" FontSize="24" HorizontalAlignment="Center" Margin="0,14,0,0"/>
-                        <Image Source="Assets/appbar.lightning.png" Width="80" Height="80" Margin="0,11,0,0"/>
-                    </Grid>
+                    <Button BorderBrush="{x:Null}" Command="{Binding Navigate}" CommandParameter="Signalr">
+                        <Grid Height="115" Width="250">
+                            <Image Source="Assets/Tile.png"/>
+                            <TextBlock Text="SIGNALR" FontSize="24" HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                            <Image Source="Assets/appbar.lightning.png" Width="80" Height="80" Margin="0,11,0,0"/>
+                        </Grid>
+                    </Button>
                 </StackPanel>
                 <StackPanel Grid.Column="2" HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Grid Height="115" Width="250">
-                        <Image Source="Assets/Tile.png"/>
-                        <TextBlock Text="STORAGE" FontSize="24" HorizontalAlignment="Center" Margin="0,14,0,0"/>
-                        <Image Source="Assets/appbar.cloud.png" Width="80" Height="80" Margin="0,7,0,0"/>
-                    </Grid>
+                    <Button BorderBrush="{x:Null}" Command="{Binding Navigate}" CommandParameter="Storage">
+                        <Grid Height="115" Width="250">
+                            <Image Source="Assets/Tile.png"/>
+                            <TextBlock Text="STORAGE" FontSize="24" HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                            <Image Source="Assets/appbar.cloud.png" Width="80" Height="80" Margin="0,7,0,0"/>
+                        </Grid>
+                    </Button>
                 </StackPanel>
+
             </Grid>
         </AppBar>
     </Page.TopAppBar>
@@ -48,8 +70,14 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"/>
-                <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal"/>
+                <StackPanel Orientation="Horizontal">
+                    <AppBarButton Icon="Account" Label="Logout" Command="{Binding LogoutCommand}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <AppBarButton Icon="Add" Label="Add Artist" Command="{Binding ToggleEdit}" CommandParameter="add"/>
+                    <AppBarButton Icon="Edit" Label="Edit Artist" Command="{Binding ToggleEdit}" CommandParameter="edit"/>
+                    <AppBarButton Icon="Delete" Label="Delete Artist" Command="{Binding DeleteArtistCommand}" CommandParameter="{Binding DataService.SelectedItem}" />
+                </StackPanel>
             </Grid>
         </AppBar>
     </Page.BottomAppBar>
@@ -65,7 +93,7 @@
             <RowDefinition Height="83*"/>
         </Grid.RowDefinitions>
         <ListView x:Name="lstArtists" Grid.Row="1" ItemTemplate="{StaticResource ArtistListDataTemplate}"
-         DataContext="{Binding DataService}" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}"/>
+         DataContext="{Binding DataService}" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem,Mode=TwoWay}"/>
         <TextBlock TextWrapping="Wrap" Text="Old School Artists " VerticalAlignment="Center" TextAlignment="Center" FontSize="48" FontFamily="Fonts/Grand Stylus.ttf#Grand Stylus" Grid.ColumnSpan="2" Canvas.ZIndex="-3"/>
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="20,20,20,0">
             <StackPanel.Background>
@@ -75,39 +103,41 @@
                     </ImageBrush.RelativeTransform>
                 </ImageBrush>
             </StackPanel.Background>
-            <StackPanel Orientation="Horizontal" Margin="0,14,0,14" HorizontalAlignment="Center" DataContext="{Binding}">
-                <Button AutomationProperties.AcceleratorKey="Control N"
-                 DataContext="{Binding NewArtist}" x:Name="cmdAddArtist" 
-                 Command="{Binding AddNewArtistCommand}" 
-                 CommandParameter="{Binding ElementName=cmdAddArtist,Path=DataContext}" >Add new Artist</Button>
-
-                <Button AutomationProperties.AcceleratorKey="Control D" x:Name="cmdDeleteArtist"
-                DataContext="{Binding DataService.SelectedItem}" Command="{Binding DeleteArtistCommand}" 
-                CommandParameter="{Binding ElementName=cmdDeleteArtist,Path=DataContext}">Delete Artist</Button>
-                
-                <Button AutomationProperties.AcceleratorKey="Control E" x:Name="cmdEditArtist"
-                 Command="{Binding EditArtistCommand}" CommandParameter="{Binding ElementName=cmdEditArtist,Path=Tag}"
-                 DataContext="{Binding}" Tag="{Binding SelectedItem}">Edit Artist</Button>
-            </StackPanel>
+            
 
             <StackPanel Visibility="{Binding EditAreaVisible}">
-                <StackPanel DataContext="{Binding DataService.SelectedItem}">
+                <StackPanel DataContext="{Binding DataService.DataContext}">
                     <TextBlock Text="Artist Name" FontSize="14"/>
-                    <TextBox x:Name="txtArtist" Text="{Binding Artist,Mode=TwoWay}" />
+                    <TextBox x:Name="txtArtistEdit" Text="{Binding Artist,Mode=TwoWay}" />
                     <TextBlock Text="Years Archive"  FontSize="14"/>
-                    <TextBox x:Name="txtYearsArchive" Text="{Binding YearsArchive,Mode=TwoWay}"/>
+                    <TextBox x:Name="txtYearsArchiveEdit" Text="{Binding YearsArchive,Mode=TwoWay}"/>
                     <TextBlock Text="Related Styles"  FontSize="14"/>
-                    <TextBox x:Name="txtRelatedStyles" Text="{Binding RelatedStyles,Mode=TwoWay}"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,14,0,14">
-                        <TextBox Width="300" Margin="0,0,14,0"/>
-                        <Button Content="Lookup Artist Image on LastFM"/>
-                    </StackPanel>
-                    <TextBlock Text="Artist Image" Margin="0,0,0,14"/>
-                    <Image Width="150" Height="150" Stretch="UniformToFill" Margin="0,0,0,14" HorizontalAlignment="Left" 
-                Source="{Binding RelatedStyles}"/>
+                    <TextBox x:Name="txtRelatedStylesEdit" Text="{Binding RelatedStyles,Mode=TwoWay}"/>
+                    
+                     
+                    
 
                     <StackPanel Margin="0,14,0,0" Orientation="Horizontal" DataContext="{Binding Source={StaticResource Locator},Path=Main}">
                         <Button AutomationProperties.AcceleratorKey="Control S" Command="{Binding CrudActionCommand}">Save</Button>
+                        <Button AutomationProperties.AcceleratorKey="Control C" Command="{Binding CancelCommand}">Cancel</Button>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Visibility="{Binding AddAreaVisible}" >
+                <StackPanel  DataContext="{Binding NewArtist}">
+                    <TextBlock Text="Artist Name" FontSize="14"/>
+                    <TextBox x:Name="txtArtistAdd" Text="{Binding Artist,Mode=TwoWay}" />
+                    <TextBlock Text="Years Archive"  FontSize="14"/>
+                    <TextBox x:Name="txtYearsArchiveAdd" Text="{Binding YearsArchive,Mode=TwoWay}"/>
+                    <TextBlock Text="Related Styles"  FontSize="14"/>
+                    <TextBox x:Name="txtRelatedStylesAdd" Text="{Binding RelatedStyles,Mode=TwoWay}"/>
+
+                    <TextBlock Text="Artist Name Image" FontSize="14"/>
+                    <TextBox x:Name="imageUrlAdd" Text="{Binding ImageUrl,Mode=TwoWay}" />
+
+
+                    <StackPanel Margin="0,14,0,0" Orientation="Horizontal" DataContext="{Binding Source={StaticResource Locator},Path=Main}">
+                        <Button AutomationProperties.AcceleratorKey="Control S" Command="{Binding AddNewArtistCommand}" CommandParameter="{Binding NewArtist}">Save</Button>
                         <Button AutomationProperties.AcceleratorKey="Control C" Command="{Binding CancelCommand}">Cancel</Button>
                     </StackPanel>
                 </StackPanel>

@@ -8,6 +8,10 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
+using Microsoft.AspNet.SignalR.Hubs;
+using System.Diagnostics;
+using Microsoft.WindowsAzure.Mobile.Service.Security;
+using Microsoft.WindowsAzure.Mobile.Service;
 
 namespace OldSchoolBeats.SignalR {
     /// <summary>
@@ -17,12 +21,28 @@ namespace OldSchoolBeats.SignalR {
     /// or to specific users. This can
     /// be uses in many scenarios.
     /// </summary>
+
+    [HubName("MessagingHub")]
+
     public class MessagingHub:Hub {
+
+
+        /// <summary>
+        /// Gets or sets the services.
+        /// </summary>
+        /// <value>
+        /// The services.
+        /// </value>
+        public ApiServices Services {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Broadcasts the specified broadcast messsage.
         /// </summary>
         /// <param name="broadcastMesssage">The broadcast messsage.</param>
+        [AuthorizeLevel(AuthorizationLevel.User)]
         public void Broadcast(string broadcastMesssage) {
 
 
@@ -39,9 +59,11 @@ namespace OldSchoolBeats.SignalR {
         /// <param name="toUserId">To user identifier.</param>
         /// <param name="message">The message.</param>
         /// <returns></returns>
+        [AuthorizeLevel(AuthorizationLevel.User)]
         public async Task SendToSpecificUserFromSpecificUser(string toUserId, string message) {
 
-            var currentUser = Context.User.Identity.Name;
+
+            var currentUser = ((ServiceUser)Context.User).Id;
 
             var storageTable = this.GetConnectionTable();
 
@@ -51,6 +73,15 @@ namespace OldSchoolBeats.SignalR {
 
             if(userOnline) {
 
+
+
+                var query = new TableQuery<SignalRUserStore>()
+                .Where(TableQuery.GenerateFilterCondition(
+                           "PartitionKey",
+                           QueryComparisons.Equal,
+                           toUserId));
+
+                var queryResult = storageTable.ExecuteQuery(query).FirstOrDefault();
 
                 var user2UserMessage = new SignalRMessage(message,currentUser,toUserId);
 
@@ -62,7 +93,7 @@ namespace OldSchoolBeats.SignalR {
                     return JsonConvert.SerializeObject(user2UserMessage);
                 });
 
-                Clients.Client(toUserId).receiveMessageFromUser(serializedMessage);
+                Clients.Client(queryResult.RowKey).receiveMessageFromUser(serializedMessage);
 
             }
 
@@ -74,35 +105,44 @@ namespace OldSchoolBeats.SignalR {
 
         /// <summary>
         /// Sends to specific user.
+        /// Not used in the sample.
         /// </summary>
         /// <param name="toUserId">To user identifier.</param>
         /// <param name="message">The message.</param>
+        [AuthorizeLevel(AuthorizationLevel.User)]
         public async Task SendToSpecificUser(string toUserId, string message) {
 
-            var currentUser = Context.User.Identity.Name;
+            var currentUser = ((ServiceUser)Context.User).Id.Split(':')[1];
 
             var storageTable = this.GetConnectionTable();
 
             await storageTable.CreateIfNotExistsAsync();
 
-            var userOnline = this.IsUserOnline(toUserId);
 
-            if (userOnline) {
 
-                //Send to specific user
-                var user2UserMessage = new SignalRMessage(message,null,toUserId);
 
-                string serializedMessage = string.Empty;
+            var query = new TableQuery<SignalRUserStore>()
+            .Where(TableQuery.GenerateFilterCondition(
+                       "PartitionKey",
+                       QueryComparisons.Equal,
+                       toUserId));
 
-                //This is the recommendation directly coming from GitHub
-                //if this has been fixed, please use the async serialization method
-                serializedMessage = await Task.Factory.StartNew<string>(() => {
-                    return JsonConvert.SerializeObject(user2UserMessage);
-                });
+            var queryResult = storageTable.ExecuteQuery(query).FirstOrDefault();
 
-                Clients.Client(toUserId).receiveMessageForUser(serializedMessage);
+            //Send to specific user
+            var user2UserMessage = new SignalRMessage(message,null,toUserId);
 
-            }
+            string serializedMessage = string.Empty;
+
+            //This is the recommendation directly coming from GitHub
+            //if this has been fixed, please use the async serialization method
+            serializedMessage = await Task.Factory.StartNew<string>(() => {
+                return JsonConvert.SerializeObject(user2UserMessage);
+            });
+
+            Clients.Client(queryResult.RowKey).receiveMessageForUser(serializedMessage);
+
+
         }
 
         /// <summary>
@@ -113,17 +153,28 @@ namespace OldSchoolBeats.SignalR {
         /// <returns>
         /// A <see cref="T:System.Threading.Tasks.Task" />
         /// </returns>
+
         public override Task OnConnected() {
 
-            var name = Context.User.Identity.Name;
-            var table = GetConnectionTable();
-            table.CreateIfNotExists();
+            try {
+                var currentUser = ((ServiceUser)Context.User).Id;
+                var id = Context.ConnectionId;
 
-            var entity = new SignalRUserStore(
-                name.ToLower(),
-                Context.ConnectionId);
-            var insertOperation = TableOperation.InsertOrReplace(entity);
-            table.Execute(insertOperation);
+                var table = GetConnectionTable();
+                table.CreateIfNotExists();
+
+                var entity = new SignalRUserStore(
+                    currentUser.Split(':')[1],
+                    Context.ConnectionId);
+                var insertOperation = TableOperation.InsertOrReplace(entity);
+                table.Execute(insertOperation);
+            }
+
+            catch (Exception ex) {
+
+                Debug.WriteLine(ex.ToString());
+
+            }
 
 
             return base.OnConnected();
@@ -136,16 +187,32 @@ namespace OldSchoolBeats.SignalR {
         /// <returns>
         /// A <see cref="T:System.Threading.Tasks.Task" />
         /// </returns>
+
         public override Task OnDisconnected(bool stopCalled) {
 
-            var name = Context.User.Identity.Name;
+            var name = ((ServiceUser)Context.User).Id.Split(':')[1];
             var table = GetConnectionTable();
 
-            var deleteOperation = TableOperation.Delete(
-            new SignalRUserStore(name, Context.ConnectionId) {
-                ETag = "*"
-            });
-            table.Execute(deleteOperation);
+            try {
+                if (!string.IsNullOrEmpty(name)) {
+                    var deleteOperation = TableOperation.Delete(
+                    new SignalRUserStore(name, Context.ConnectionId) {
+                        ETag = "*"
+                    });
+                    TableOperation retrieveOperation = TableOperation.Retrieve<SignalRUserStore>(name, Context.ConnectionId);
+                    TableResult retrievedResult = table.Execute(retrieveOperation);
+                    SignalRUserStore checkEntity = retrievedResult.Result as SignalRUserStore;
+
+                    if (checkEntity != null) {
+                        table.Execute(deleteOperation);
+                    }
+                }
+            }
+
+            catch (Exception ex) {
+
+                //throw;
+            }
 
             return base.OnDisconnected(stopCalled);
 
@@ -158,23 +225,30 @@ namespace OldSchoolBeats.SignalR {
         /// <returns>
         /// A <see cref="T:System.Threading.Tasks.Task" />
         /// </returns>
-        public override  Task OnReconnected() {
+        public override Task OnReconnected() {
+
+            try {
+                var currentUser = ((ServiceUser)Context.User).Id.Split(':')[1];
+                var id = Context.ConnectionId;
+
+                var table = GetConnectionTable();
+                table.CreateIfNotExists();
+
+                var entity = new SignalRUserStore(
+                    currentUser,
+                    Context.ConnectionId);
+                var insertOperation = TableOperation.InsertOrReplace(entity);
+                table.Execute(insertOperation);
+            }
+
+            catch (Exception ex) {
+
+                Debug.WriteLine(ex.ToString());
+
+            }
 
 
-            var currentUser = Context.User.Identity.Name;
 
-            var msg = new SignalRMessage("You have been successfully re-connected.",null,currentUser);
-
-            string jsonContent = string.Empty;
-
-            Task.Factory.StartNew(()=> {
-
-                jsonContent =  JsonConvert.SerializeObject(msg);
-
-            }).Wait();
-
-
-            Clients.Client(currentUser).reconnectedMessage(jsonContent);
 
             return base.OnReconnected();
 
@@ -192,7 +266,7 @@ namespace OldSchoolBeats.SignalR {
         private CloudTable GetConnectionTable() {
             var storageAccount =
                 CloudStorageAccount.Parse(
-                    CloudConfigurationManager.GetSetting("StorageConnectionString"));
+                    Services.Settings["StorageConnectionString"]);
             var tableClient = storageAccount.CreateCloudTableClient();
             return tableClient.GetTableReference("signalrconnections");
         }
@@ -217,15 +291,16 @@ namespace OldSchoolBeats.SignalR {
 
             var table = GetConnectionTable();
 
-            var query = new TableQuery<SignalRUserStore>()
-            .Where(TableQuery.GenerateFilterCondition(
-                       "PartitionKey",
-                       QueryComparisons.Equal,
-                       userName));
+            var partitionKey = userName.Split(':')[1];
 
-            var queryResult = table.ExecuteQuery(query).ToList();
+            string pkFilter = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey);
 
-            if (queryResult.Count == 0) {
+            var query = new TableQuery<SignalRUserStore>().Where(pkFilter);
+
+            var queryResult = table.ExecuteQuery(query);
+
+
+            if (queryResult.Count() == 0) {
                 return false;
             }
 

@@ -34,20 +34,24 @@ namespace OldSchoolBeats.Universal.ViewModel {
         public ViewModelLocator() {
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 
-            ////if (ViewModelBase.IsInDesignModeStatic)
-            ////{
-            ////    // Create design time view services and models
-            ////    SimpleIoc.Default.Register<IDataService, DesignDataService>();
-            ////}
-            ////else
-            ////{
-            ////    // Create run time view services and models
-            ////    SimpleIoc.Default.Register<IDataService, DataService>();
-            ////}
+            if (ViewModelBase.IsInDesignModeStatic) {
+                // Create design time view services and models
+                SimpleIoc.Default.Register<IDataService<OldSchoolArtist>, DesignTimeDataService>();
+            }
+
+            else {
+                // Create run time view services and models
+                SimpleIoc.Default.Register<IDataService<OldSchoolArtist>>(() => {
+                    return new OldSchoolArtistsDataService(App.MobileService);
+                });
+
+            }
 
             SimpleIoc.Default.Register<MainViewModel>();
-            SimpleIoc.Default.Register<OldSchoolArtistsDataService>();
-            SimpleIoc.Default.Register<DesignTimeDataService>();
+
+
+            SimpleIoc.Default.Register<ILoginService,WamsLoginService>();
+            SimpleIoc.Default.Register<INavigationService,NavigationService>();
         }
 
         public MainViewModel Main {

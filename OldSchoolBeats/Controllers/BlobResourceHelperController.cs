@@ -211,14 +211,29 @@ namespace OldSchoolBeats.Controllers {
         /// <param name="sasUrl">The sas URL.</param>
         /// <returns></returns>
         [HttpPost]
-        [Route("api/dowloadblobsas")]
-        public async Task<byte[]> DownloadBlobUsingSASResourceUrl(string sasUrl) {
+        [Route("api/dowloadblob")]
+        public async Task<byte[]> DownloadBlob(BlobManipulationData data) {
 
-            HttpClient cl = new HttpClient();
+            return await Task.Run<byte[]>(() => {
 
-            var blobBytes = await cl.GetByteArrayAsync(sasUrl);
+                var storageConnection = Services.Settings["StorageConnectionString"];
 
-            return blobBytes;
+                storageAccount = CloudStorageAccount.Parse(storageConnection);
+
+                blobClient = storageAccount.CreateCloudBlobClient();
+
+                container = blobClient.GetContainerReference(data.ContainerName);
+
+                var blob = container.GetBlockBlobReference(data.BlobName);
+
+                blob.FetchAttributes();
+
+                var blobData = new byte[blob.Properties.Length];
+
+                blob.DownloadToByteArray(blobData, 0);
+
+                return blobData;
+            });
         }
 
     }

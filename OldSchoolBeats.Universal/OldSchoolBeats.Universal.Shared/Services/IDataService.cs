@@ -4,11 +4,13 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using OldSchoolBeats.ClientModel;
+using Microsoft.WindowsAzure.MobileServices;
+using OldSchoolBeats.Universal.ViewModel;
 
 namespace OldSchoolBeats.Universal.Services {
     public interface IDataService<T> {
 
-        ICollection<T> Items {
+        MobileServiceCollection<T, T> Items {
             get;
             set;
         }
@@ -18,14 +20,21 @@ namespace OldSchoolBeats.Universal.Services {
             set;
         }
 
+        BindableOldSchoolArtist DataContext {
+            get;
+            set;
+        }
+
         void SearchItems(Expression<Func<T, bool>> predicate);
 
-        ICollection<OldSchoolArtist> SearchAndReturnItems(Expression<Func<T, bool>> predicate);
+        Task FillItems();
+
+        ICollection<T> SearchAndReturnItems(Expression<Func<T, bool>> predicate);
 
         Task DeleteItem(T item);
 
         Task AddItem(T item);
-        Task UpdateItem(T item, T delta);
+        Task UpdateItem(BindableOldSchoolArtist item, T delta);
 
     }
 }

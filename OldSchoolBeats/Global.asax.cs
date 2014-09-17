@@ -6,9 +6,13 @@ using OldSchoolBeats.SignalR;
 namespace OldSchoolBeats {
     public class WebApiApplication : System.Web.HttpApplication {
         protected void Application_Start() {
+
+
+            //GlobalHost.HubPipeline.AddModule(new DiagnosticHubPipeline());
+
             WebApiConfig.Register();
 
-            GlobalHost.HubPipeline.AddModule(new DiagnosticHubPipeline());
+
 
         }
     }

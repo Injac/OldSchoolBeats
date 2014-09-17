@@ -15,10 +15,20 @@
     <Compile Include="$(MSBuildThisFileDirectory)App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Behaviours\DialogBehaviour.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messaging\DialogMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\BlobData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\DesignTimeDataService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IDataService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\ILoginService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\INavigationService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\MessagingIdentifiers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\NavigationService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\OldSchoolArtistsDataService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\WamsLoginService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ValueConverters\UserMessagesValueConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModel\MainViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModel\BindableOldSchoolArtists.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModel\ViewModelLocator.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -26,8 +36,5 @@
     <Content Include="$(MSBuildThisFileDirectory)Fonts\Grand Stylus.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)ValueConverters\" />
   </ItemGroup>
 </Project>

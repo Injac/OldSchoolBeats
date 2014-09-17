@@ -1,0 +1,71 @@
+﻿<Page
+    x:Class="OldSchoolBeats.Universal.Signalr"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:OldSchoolBeats.Universal"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+     xmlns:converters="using:OldSchoolBeats.Universal.ValueConverters"
+     DataContext="{Binding Source={StaticResource Locator},Path=Main}"
+    mc:Ignorable="d" 
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Resources>
+        <converters:UserMessagesValueConverter x:Key="UsrMsgConverter"/>
+    </Page.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="240"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Margin="14,0,0,0">
+            <TextBlock Text="YOU"/>
+            <StackPanel>
+                <TextBlock Text="Message" />
+                <StackPanel Orientation="Horizontal">
+
+                    <TextBox x:Name="txtBroadcastMessage" Width="170" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,9,7,0" />
+                    <Button Content="Broadcast" Command="{Binding SignalRBroadcastCommand}" VerticalAlignment="Top"
+                            CommandParameter="{Binding ElementName=txtBroadcastMessage,Path=Text}"/>
+                </StackPanel>
+                <TextBlock Text="User name"/>
+                <StackPanel>
+                    <TextBox Width="290" HorizontalAlignment="Left" 
+                             Margin="0,0,14,0" Text="{Binding SignalRUserMessage.ToUser,Mode=TwoWay}"/>
+                    <TextBlock Text="Message"/>
+                    <TextBox Width="290" HorizontalAlignment="Left" Margin="0,0,14,0" Text="{Binding SignalRUserMessage.Message,Mode=TwoWay}" />
+                    <Button Content="Send Message To User" Width="290"
+                            Command="{Binding SignalRFromUserToUserCommand}" CommandParameter="{Binding SignalRUserMessage}" />
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+        <ListView Grid.Row="1" ItemsSource="{Binding SignalrMessages}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <TextBlock Text="FROM"  Foreground="Red" FontSize="20" />
+                        <TextBlock Text="{Binding FromUser,FallbackValue=None}" Foreground="LightGreen" FontSize="20"/>
+                        <TextBlock Text="MESSAGE"  Foreground="Red" FontSize="20"/>
+                        <TextBlock Text="{Binding Message}" Foreground="LightGreen" FontSize="20"/>
+                        <TextBlock Text="TO"  Foreground="Red" FontSize="20" />
+                        <TextBlock Text="{Binding ToUser}" Foreground="LightGreen" FontSize="20"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <StackPanel Grid.Row="2">
+            <TextBlock Text="ALL" />
+        </StackPanel>
+        <ListView Grid.Row="3" ItemsSource="{Binding SignalrBroadcastMessages}" >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" >
+                        <TextBlock Text="BROADCAST:" Foreground="Red" FontSize="20"/>
+                        <TextBlock Text="{Binding}" Foreground="LightGreen" FontSize="20"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</Page>

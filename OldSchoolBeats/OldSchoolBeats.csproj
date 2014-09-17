@@ -40,6 +40,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
@@ -227,11 +228,6 @@
     <Compile Include="Controllers\OldSchoolFeedsController.cs" />
     <Compile Include="Controllers\ResourcesController.cs" />
     <Compile Include="DataObjects\OldSchoolArtist.cs" />
-    <Compile Include="Migrations\201406090049577_Initial.cs" />
-    <Compile Include="Migrations\201406090049577_Initial.Designer.cs">
-      <DependentUpon>201406090049577_Initial.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BlobManipulationData.cs" />
     <Compile Include="Models\OldSchoolBeatsContext.cs" />
     <Compile Include="ScheduledJobs\SampleJob.cs" />
@@ -272,11 +268,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201406090049577_Initial.resx">
-      <DependentUpon>201406090049577_Initial.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

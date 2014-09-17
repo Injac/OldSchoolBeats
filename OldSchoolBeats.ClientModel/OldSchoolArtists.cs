@@ -5,11 +5,22 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OldSchoolBeats.ClientModel {
+
+
+
+
+
     /// <summary>
     /// Our client-class
     /// for Artists.
     /// </summary>
     public class OldSchoolArtist {
+
+
+        public string Id {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Gets or sets the artist.
